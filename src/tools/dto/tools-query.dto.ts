@@ -1,6 +1,17 @@
 import { IsEnum, IsNumber, IsOptional, IsString, Min } from "class-validator";
 import { ToolsOwnerDepartment, ToolsStatus } from "../entities/tool.entity.js";
 
+export enum ToolsSortBy {
+  NAME = "name",
+  MONTHLY_COST = "monthly_cost",
+  CREATED_AT = "created_at",
+}
+
+export enum SortOrder {
+  ASC = "asc",
+  DESC = "desc",
+}
+
 export class ToolsQueryDto {
   @IsOptional()
   @IsEnum(ToolsOwnerDepartment)
@@ -23,4 +34,22 @@ export class ToolsQueryDto {
   @IsOptional()
   @IsString()
   category?: string;
+
+  @IsOptional()
+  @IsNumber()
+  @Min(1)
+  page?: number;
+
+  @IsOptional()
+  @IsNumber()
+  @Min(1)
+  limit?: number;
+
+  @IsOptional()
+  @IsEnum(ToolsSortBy)
+  sortBy?: ToolsSortBy;
+
+  @IsOptional()
+  @IsEnum(SortOrder)
+  sortOrder?: SortOrder;
 }
