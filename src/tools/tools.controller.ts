@@ -26,7 +26,7 @@ import {
   TOOLS_CREATE_OR_UPDATE_EXAMPLE,
   TOOLS_FIND_ALL_EXAMPLE,
   TOOLS_UPDATE_BODY_EXAMPLE,
-} from "./tools.example.js";
+} from "./tools.examples.js";
 
 @ApiTags("tools")
 @Controller("tools")

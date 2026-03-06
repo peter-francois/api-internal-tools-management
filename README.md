@@ -83,35 +83,81 @@ API disponible sur http://localhost:3000
 
 Swagger-ui: http://localhost:3000/api/docs
 
-## Sécurité de l’application
+## Endpoints
 
-L’application intègre plusieurs protections pour sécuriser les données et l’API :
+### Format de réponse
 
-- Validation et transformation des entrées avec **class-validator** et **class-transformer** pour éviter les injections et les données invalides.
-- Accès à la base via **Prisma ORM** typé pour prévenir les injections SQL.
-- Gestion sécurisée des secrets et mots de passe via le fichier **.env** (jamais versionné).
-- Tests unitaires et d’intégration (**Jest**) pour vérifier la logique métier et la robustesse.
+Toutes les réponses suivent une interface générique :
 
-## Tests
+```typescript
+interface SuccessResponseInterface<T, M> {
+  data: T;
+  meta?: M;
+}
+```
 
-Exécuter les tests
+Les listes incluent un objet `meta` avec les informations de pagination et de filtrage :
 
-```bash
-npm run test
+```json
+{
+  "data": [...],
+  "meta": {
+    "total": 24,
+    "filtered": 2,
+    "filters_applied": {
+      "min_cost": 10,
+      "max_cost": 50,
+      "category": "Development"
+    }
+  }
+}
+```
+
+### Format des erreurs
+
+Les erreurs de validation retournent :
+
+```json
+{
+  "error": "Validation failed",
+  "details": ["monthly_cost must be a number conforming to the specified constraints"]
+}
 ```
 
 ## Architecture
 
 ```
+
 internal-tools/
-├─ src/ # Code source
-│ ├─ modules/ # Modules NestJS
-│ ├─ utils/ # Filtres, variables
-│ ├─ app.module.ts/ # Module racine de l'application
-│ └─ main.ts # Point d'entrée
-├─ prisma/ # Prisma schema et migrations
-├─ docker-compose.yml
-└─ package.json
+├── prisma/                                  # Schéma Prisma et migrations
+├── scripts/                                 # Scripts pour la base de données
+├── mysql/                                   # Fichier pour init la base de données
+├── src/
+│   ├── tools/
+│   │   ├── dto/
+│   │   │   ├── create-tool.dto.ts              # Validation POST
+│   │   │   ├── update-tool.dto.ts              # Validation PATCH (PartialType de create)
+│   │   │   └── tools-query.dto.ts              # Paramètres de filtrage GET
+│   │   ├── entities/
+│   │   │   └── tool.entity.ts                  # Classes de réponse Swagger (Tool, ToolsFindOneByIdResponse...)
+│   │   ├── tools.examples.ts                   # Exemples centralisés pour Swagger
+│   │   ├── tools.controller.ts
+│   │   ├── tools.service.ts
+│   │   └── tools.service.spec.ts               # Tests unitaires
+│   ├── prisma/
+│   │   ├── prisma.service.ts                   # Service d'accès à la base de données
+│   │   └── prisma.module.ts                    # Module Prisma
+│   ├── utils/
+│   │   ├── filters/
+│   │   │   ├── prisma-exeption.filter.ts       # Filtre pour les erreur prisma
+│   │   │   └── validation-exeption.filter.ts   # Filtre pour les erreur de validation
+│   │   ├── response.interface.ts               # SuccessResponseInterface<T, M>
+│   │   ├── success-responce.factory.ts         # Creation des Classe concrète dynamique pour Swagger
+│   │   └── variables.ts
+│   ├── app.module.ts
+│   └── main.ts
+├── docker-compose.yml
+└── package.json
 ```
 
 ## Choix technique
@@ -147,15 +193,22 @@ internal-tools/
 
 ---
 
-### 5. Jest pour les tests
+### 5. Interface de réponse générique
 
-- **Pourquoi** : Framework de tests intégré par défaut dans l’écosystème NestJS.
-- **Avantage** : Tests unitaires et d’intégration simples à mettre en place.
+- **Pourquoi** : Normaliser le format de toutes les réponses API.
+- **Avantage** : `SuccessResponseInterface<T, M>` sépare clairement `data` (les objets métier) et `meta` (pagination, filtres appliqués). Une `SuccessResponseFactory` contourne la limitation de Swagger sur les generics TypeScript en générant une classe concrète dynamiquement.
 
 ---
 
-### 6. Architecture monolithique modulaire
+### 6. Jest pour les tests
 
-- **Pourquoi** : Organiser l’application en modules fonctionnels dans un seul service.
+- **Pourquoi** : Framework de tests intégré par défaut dans l'écosystème NestJS.
+- **Avantage** : Tests unitaires simples à mettre en place. Configuration adaptée pour gérer le client Prisma généré en ESM via `tsconfig.test.json` et `moduleNameMapper`.
+
+---
+
+### 7. Architecture monolithique modulaire
+
+- **Pourquoi** : Organiser l'application en modules fonctionnels dans un seul service.
 - **Avantage** : Bonne séparation des responsabilités et maintenance facilitée.
-- **Comparatif** : Plus simple qu’une architecture **microservices**, tout en restant mieux structurée qu’un monolithe classique.
+- **Comparatif** : Plus simple qu'une architecture **microservices**, tout en restant mieux structurée qu'un monolithe classique.
