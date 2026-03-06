@@ -1,8 +1,9 @@
 import { NestFactory } from "@nestjs/core";
 import { AppModule } from "./app.module.js";
 import { ValidationPipe } from "@nestjs/common";
-import { PrismaExeptionFilter } from "./utils/prisma-exeption.filter.js";
+import { PrismaExeptionFilter } from "./utils/filters/prisma-exeption.filter.js";
 import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
+import { ValidationExceptionFilter } from "./utils/filters/validation-exception.filter.js";
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -17,7 +18,7 @@ async function bootstrap() {
     }),
   );
 
-  app.useGlobalFilters(new PrismaExeptionFilter());
+  app.useGlobalFilters(new ValidationExceptionFilter(), new PrismaExeptionFilter());
 
   const config = new DocumentBuilder()
     .setTitle("Tools Management API")

@@ -1,8 +1,9 @@
 import { ArgumentsHost, Catch, ExceptionFilter, HttpStatus } from "@nestjs/common";
 import { Request, Response } from "express";
-import { Prisma } from "../generated/prisma/client.js";
-import { PrismaErrorEnum } from "./prisma-error.enum.js";
-import { ErrorResponseInterface } from "./response.interface.js";
+import { Prisma } from "../../generated/prisma/client.js";
+import { ErrorResponseInterface } from "../response.interface.js";
+import { PrismaErrorEnum } from "../prisma-error.enum.js";
+
 
 interface PrismaErrorInterface {
   prismaCode: string;
