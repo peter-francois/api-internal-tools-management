@@ -1,5 +1,6 @@
 import { IsEnum, IsNumber, IsOptional, IsString, Min } from "class-validator";
 import { ToolsOwnerDepartment, ToolsStatus } from "../entities/tool.entity.js";
+import { Type } from "class-transformer";
 
 export enum ToolsSortBy {
   NAME = "name",
@@ -22,11 +23,13 @@ export class ToolsQueryDto {
   status?: ToolsStatus;
 
   @IsOptional()
+  @Type(() => Number)
   @IsNumber()
   @Min(0)
   min_cost?: number;
 
   @IsOptional()
+  @Type(() => Number)
   @IsNumber()
   @Min(0)
   max_cost?: number;
