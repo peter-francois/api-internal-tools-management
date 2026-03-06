@@ -8,6 +8,7 @@ import { Prisma, tools } from "../generated/prisma/client.js";
 import { THIRTY_DAYS_IN_MS } from "../utils/variables.js";
 import { SuccessResponseInterface } from "../utils/response.interface.js";
 import { ApiProperty } from "@nestjs/swagger";
+import { Tool } from "./entities/tool.entity.js";
 
 export class ToolsFindAllMeta {
   @ApiProperty()
@@ -19,13 +20,13 @@ export class ToolsFindAllMeta {
   })
   filters_applied: toolsWhereInput;
 }
-
-type ToolsFindOneByIdResponse = tools & {
-  usage_metrics: UsageMetrics;
-};
-
 class UsageMetrics {
   last_30_days: Last30DaysMetrics;
+}
+
+export class ToolsFindOneByIdResponse extends Tool {
+  @ApiProperty({ type: () => UsageMetrics })
+  usage_metrics: UsageMetrics;
 }
 
 class Last30DaysMetrics {
@@ -110,6 +111,7 @@ export class ToolsService {
     ]);
     const data: ToolsFindOneByIdResponse = {
       ...tool,
+      monthly_cost: tool.monthly_cost.toNumber(),
       usage_metrics: {
         last_30_days: {
           total_sessions: usageMetrics._count.id,
