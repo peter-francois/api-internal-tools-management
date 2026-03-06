@@ -2,7 +2,12 @@ import { ArgumentsHost, Catch, ExceptionFilter, HttpStatus } from "@nestjs/commo
 import { Request, Response } from "express";
 import { Prisma } from "../../generated/prisma/client.js";
 import { ErrorResponseInterface } from "../response.interface.js";
-import { PrismaErrorEnum } from "../prisma-error.enum.js";
+
+enum PrismaErrorEnum {
+  ToolNotFound = "P2025",
+  UniqueConstraintFailed = "P2002",
+  ForeignKeyConstraintFailed = "P2003",
+}
 
 
 interface PrismaErrorInterface {
