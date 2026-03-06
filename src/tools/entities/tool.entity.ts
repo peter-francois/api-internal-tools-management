@@ -1,20 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger";
-
-export enum ToolsOwnerDepartment {
-  Engineering = "Engineering",
-  Sales = "Sales",
-  Marketing = "Marketing",
-  HR = "HR",
-  Finance = "Finance",
-  Operations = "Operations",
-  Design = "Design",
-}
-
-export enum ToolsStatus {
-  ACTIVE = "active",
-  DEPRECATED = "deprecated",
-  TRIAL = "trial",
-}
+import { tools_owner_department, tools_status } from "../../generated/prisma/enums.js";
 
 export class Tool {
   @ApiProperty()
@@ -24,13 +9,13 @@ export class Tool {
   name: string;
 
   @ApiProperty()
-  description?: string;
+  description: string | null;
 
   @ApiProperty()
-  vendor?: string;
+  vendor: string | null;
 
   @ApiProperty()
-  website_url?: string;
+  website_url: string | null;
 
   @ApiProperty()
   category_id: number;
@@ -41,15 +26,15 @@ export class Tool {
   @ApiProperty()
   active_users_count: number;
 
-  @ApiProperty({ enum: ToolsOwnerDepartment })
-  owner_department: ToolsOwnerDepartment;
+  @ApiProperty({ enum: tools_owner_department })
+  owner_department: tools_owner_department | null;
 
-  @ApiProperty({ enum: ToolsStatus })
-  status?: ToolsStatus;
-
-  @ApiProperty()
-  created_at?: Date;
+  @ApiProperty({ enum: tools_status })
+  status: tools_status | null;
 
   @ApiProperty()
-  updated_at?: Date;
+  created_at: Date | null;
+
+  @ApiProperty()
+  updated_at: Date | null;
 }
