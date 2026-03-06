@@ -24,7 +24,11 @@ export class ToolsQueryDto {
   @IsEnum(tools_owner_department)
   department?: tools_owner_department;
 
-  @ApiProperty({ required: false, enum: tools_status, example: tools_status.active })
+  @ApiProperty({
+    example: tools_status.active,
+    required: false,
+    enum: tools_status,
+  })
   @IsOptional()
   @IsEnum(tools_status)
   status?: tools_status;
