@@ -39,7 +39,7 @@ export const TOOLS_CREATE_BODY_EXAMPLE = {
   },
 };
 
-export const TOOLS_CREATE_EXAMPLE = {
+export const TOOLS_CREATE_OR_UPDATE_EXAMPLE = {
   data: {
     id: 3,
     name: "GitHub",
@@ -53,5 +53,13 @@ export const TOOLS_CREATE_EXAMPLE = {
     category: "Development",
     created_at: "2026-03-05T14:24:27.000Z",
     updated_at: "2026-03-05T14:24:27.000Z",
+  },
+};
+
+export const TOOLS_UPDATE_BODY_EXAMPLE = {
+  data: {
+    monthly_cost: 7.0,
+    status: "deprecated",
+    description: "Updated description after renewal",
   },
 };
