@@ -5,12 +5,26 @@ import { UpdateToolDto } from "./dto/update-tool.dto.js";
 import { ToolsQueryDto, ToolsSortBy } from "./dto/tools-query.dto.js";
 import { toolsWhereInput } from "../generated/prisma/models.js";
 import { Prisma, tools } from "../generated/prisma/client.js";
+import { THIRTY_DAYS_IN_MS } from "../utils/variables.js";
 
 class ToolsFindAllResponse {
   data: tools[];
   total: number;
   filtered: number;
   filters_applied: toolsWhereInput;
+}
+
+type ToolsFindOneByIdResponse = tools & {
+  usage_metrics: UsageMetrics;
+};
+
+class UsageMetrics {
+  last_30_days: Last30DaysMetrics;
+}
+
+class Last30DaysMetrics {
+  total_sessions: number;
+  avg_session_minutes: number;
 }
 
 @Injectable()
@@ -68,8 +82,28 @@ export class ToolsService {
     return { data, total, filtered, filters_applied: query };
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} tool`;
+  async findOne(id: number): Promise<ToolsFindOneByIdResponse> {
+    const [tool, usageMetrics] = await this.prismaService.$transaction([
+      this.prismaService.tools.findUniqueOrThrow({ where: { id } }),
+      this.prismaService.usage_logs.aggregate({
+        where: {
+          tool_id: id,
+          session_date: { gte: new Date(Date.now() - THIRTY_DAYS_IN_MS) },
+        },
+        _count: { id: true },
+        _avg: { usage_minutes: true },
+      }),
+    ]);
+
+    return {
+      ...tool,
+      usage_metrics: {
+        last_30_days: {
+          total_sessions: usageMetrics._count.id,
+          avg_session_minutes: Math.round(usageMetrics._avg.usage_minutes ?? 0),
+        },
+      },
+    };
   }
 
   update(id: number, updateToolDto: UpdateToolDto) {
