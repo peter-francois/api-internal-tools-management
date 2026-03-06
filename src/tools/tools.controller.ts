@@ -13,16 +13,35 @@ import { CreateToolDto } from "./dto/create-tool.dto.js";
 import { UpdateToolDto } from "./dto/update-tool.dto.js";
 import { ToolsService } from "./tools.service.js";
 import { ToolsQueryDto } from "./dto/tools-query.dto.js";
-import { ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
+import { ApiBody, ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { SuccessResponseFactory } from "../utils/success-response.factory.js";
-import { Tool, ToolsFindAllMeta, ToolsFindOneByIdResponse } from "./entities/tool.entity.js";
-import { TOOLS_FIND_ALL_EXAMPLE } from "../utils/tools.example.js";
+import {
+  Tool,
+  ToolsCreateResponse,
+  ToolsFindAllMeta,
+  ToolsFindOneByIdResponse,
+} from "./entities/tool.entity.js";
+import {
+  TOOLS_CREATE_BODY_EXAMPLE,
+  TOOLS_CREATE_EXAMPLE,
+  TOOLS_FIND_ALL_EXAMPLE,
+} from "../utils/tools.example.js";
 
 @ApiTags("tools")
 @Controller("tools")
 export class ToolsController {
   constructor(private readonly toolsService: ToolsService) {}
 
+  @ApiOperation({ summary: "Create a new tool" })
+  @ApiBody({
+    type: CreateToolDto,
+    examples: TOOLS_CREATE_BODY_EXAMPLE,
+  })
+  @ApiResponse({
+    status: 201,
+    type: SuccessResponseFactory(ToolsCreateResponse),
+    example: TOOLS_CREATE_EXAMPLE,
+  })
   @Post()
   create(@Body() createToolDto: CreateToolDto) {
     return this.toolsService.create(createToolDto);
