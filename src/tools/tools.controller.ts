@@ -23,8 +23,9 @@ import {
 } from "./entities/tool.entity.js";
 import {
   TOOLS_CREATE_BODY_EXAMPLE,
-  TOOLS_CREATE_EXAMPLE,
+  TOOLS_CREATE_OR_UPDATE_EXAMPLE,
   TOOLS_FIND_ALL_EXAMPLE,
+  TOOLS_UPDATE_BODY_EXAMPLE,
 } from "../utils/tools.example.js";
 
 @ApiTags("tools")
@@ -40,7 +41,7 @@ export class ToolsController {
   @ApiResponse({
     status: 201,
     type: SuccessResponseFactory(ToolsCreateOrUpdateResponse),
-    example: TOOLS_CREATE_EXAMPLE,
+    example: TOOLS_CREATE_OR_UPDATE_EXAMPLE,
   })
   @Post()
   create(@Body() createToolDto: CreateToolDto) {
@@ -71,6 +72,16 @@ export class ToolsController {
     return this.toolsService.findOne(id);
   }
 
+  @ApiOperation({ summary: "Get all tools with optional filters" })
+  @ApiBody({
+    type: UpdateToolDto,
+    examples: TOOLS_UPDATE_BODY_EXAMPLE,
+  })
+  @ApiResponse({
+    status: 201,
+    type: SuccessResponseFactory(ToolsCreateOrUpdateResponse),
+    example: TOOLS_CREATE_OR_UPDATE_EXAMPLE,
+  })
   @Patch(":id")
   update(@Param("id", ParseIntPipe) id: number, @Body() updateToolDto: UpdateToolDto) {
     return this.toolsService.update(id, updateToolDto);
