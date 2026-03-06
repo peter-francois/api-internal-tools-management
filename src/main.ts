@@ -11,6 +11,7 @@ async function bootstrap() {
       disableErrorMessages: process.env.NODE_ENV !== "development",
     }),
   );
+  app.setGlobalPrefix("api");
   app.useGlobalFilters(new PrismaExeptionFilter());
   await app.listen(process.env.PORT ?? 3000);
 }
