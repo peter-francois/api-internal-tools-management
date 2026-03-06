@@ -1,7 +1,7 @@
 import { IsEnum, IsNumber, IsOptional, IsString, Min } from "class-validator";
-import { ToolsOwnerDepartment, ToolsStatus } from "../entities/tool.entity.js";
 import { Type } from "class-transformer";
 import { ApiProperty } from "@nestjs/swagger";
+import { tools_owner_department, tools_status } from "../../generated/prisma/enums.js";
 
 export enum ToolsSortBy {
   NAME = "name",
@@ -17,17 +17,17 @@ export enum SortOrder {
 export class ToolsQueryDto {
   @ApiProperty({
     required: false,
-    enum: ToolsOwnerDepartment,
-    example: ToolsOwnerDepartment.Engineering,
+    enum: tools_owner_department,
+    example: tools_owner_department.Engineering,
   })
   @IsOptional()
-  @IsEnum(ToolsOwnerDepartment)
-  department?: ToolsOwnerDepartment;
+  @IsEnum(tools_owner_department)
+  department?: tools_owner_department;
 
-  @ApiProperty({ required: false, enum: ToolsStatus, example: ToolsStatus.ACTIVE })
+  @ApiProperty({ required: false, enum: tools_status, example: tools_status.active })
   @IsOptional()
-  @IsEnum(ToolsStatus)
-  status?: ToolsStatus;
+  @IsEnum(tools_status)
+  status?: tools_status;
 
   @ApiProperty({ required: false, example: 10, minimum: 0 })
   @IsOptional()
