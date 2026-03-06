@@ -7,32 +7,9 @@ import { type toolsWhereInput } from "../generated/prisma/models.js";
 import { Prisma, tools } from "../generated/prisma/client.js";
 import { THIRTY_DAYS_IN_MS } from "../utils/variables.js";
 import { SuccessResponseInterface } from "../utils/response.interface.js";
-import { ApiProperty } from "@nestjs/swagger";
-import { Tool } from "./entities/tool.entity.js";
+import { ToolsFindAllMeta, ToolsFindOneByIdResponse } from "./entities/tool.entity.js";
 
-export class ToolsFindAllMeta {
-  @ApiProperty()
-  total: number;
-  @ApiProperty()
-  filtered: number;
-  @ApiProperty({
-    example: { min_cost: 10, max_cost: 50, category: "Development" },
-  })
-  filters_applied: toolsWhereInput;
-}
-class UsageMetrics {
-  last_30_days: Last30DaysMetrics;
-}
 
-export class ToolsFindOneByIdResponse extends Tool {
-  @ApiProperty({ type: () => UsageMetrics })
-  usage_metrics: UsageMetrics;
-}
-
-class Last30DaysMetrics {
-  total_sessions: number;
-  avg_session_minutes: number;
-}
 
 @Injectable()
 export class ToolsService {
