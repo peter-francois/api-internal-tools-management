@@ -3,14 +3,20 @@ import { PrismaService } from "../prisma/prisma.service.js";
 import { CreateToolDto } from "./dto/create-tool.dto.js";
 import { UpdateToolDto } from "./dto/update-tool.dto.js";
 import { ToolsQueryDto, ToolsSortBy } from "./dto/tools-query.dto.js";
-import { toolsWhereInput } from "../generated/prisma/models.js";
+import { type toolsWhereInput } from "../generated/prisma/models.js";
 import { Prisma, tools } from "../generated/prisma/client.js";
 import { THIRTY_DAYS_IN_MS } from "../utils/variables.js";
-import { SuccessResponseInterface } from "src/utils/response.interface.js";
+import { SuccessResponseInterface } from "../utils/response.interface.js";
+import { ApiProperty } from "@nestjs/swagger";
 
-class ToolsFindAllMeta {
+export class ToolsFindAllMeta {
+  @ApiProperty()
   total: number;
+  @ApiProperty()
   filtered: number;
+  @ApiProperty({
+    example: { min_cost: 10, max_cost: 50, category: 'Development' },
+  })
   filters_applied: toolsWhereInput;
 }
 
@@ -65,7 +71,7 @@ export class ToolsService {
       if (categoryRecord) {
         filters.category_id = categoryRecord.id;
       } else {
-        return { data: [], meta: {total: 0, filtered: 0, filters_applied: query} };
+        return { data: [], meta: { total: 0, filtered: 0, filters_applied: query } };
       }
     }
     const skip = (page - 1) * limit;
