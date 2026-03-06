@@ -15,7 +15,7 @@ export class ToolsFindAllMeta {
   @ApiProperty()
   filtered: number;
   @ApiProperty({
-    example: { min_cost: 10, max_cost: 50, category: 'Development' },
+    example: { min_cost: 10, max_cost: 50, category: "Development" },
   })
   filters_applied: toolsWhereInput;
 }
@@ -45,35 +45,24 @@ export class ToolsService {
     query: ToolsQueryDto,
   ): Promise<SuccessResponseInterface<tools[], ToolsFindAllMeta>> {
     const {
-      department,
-      status,
-      min_cost,
-      max_cost,
       category,
       page = 1,
       limit = 20,
       sortBy = ToolsSortBy.NAME,
       sortOrder = Prisma.SortOrder.asc,
     } = query;
-    const filters: toolsWhereInput = {};
-
-    if (department) filters.owner_department = department;
-    if (status) filters.status = status;
-    if (min_cost || max_cost) {
-      filters.monthly_cost = {};
-      if (min_cost) filters.monthly_cost.gte = min_cost;
-      if (max_cost) filters.monthly_cost.lte = max_cost;
-    }
+    let categoryId: number | undefined;
     if (category) {
       const categoryRecord = await this.prismaService.categories.findUnique({
         where: { name: category },
       });
-      if (categoryRecord) {
-        filters.category_id = categoryRecord.id;
-      } else {
+      if (!categoryRecord) {
         return { data: [], meta: { total: 0, filtered: 0, filters_applied: query } };
       }
+      categoryId = categoryRecord.id;
     }
+
+    const filters = this.buildFilters(query, categoryId);
     const skip = (page - 1) * limit;
 
     const [total, filtered, data] = await this.prismaService.$transaction([
@@ -89,6 +78,22 @@ export class ToolsService {
     const meta = { total, filtered, filters_applied: query };
 
     return { data, meta };
+  }
+
+  private buildFilters(query: ToolsQueryDto, categoryId?: number): toolsWhereInput {
+    const { department, status, min_cost, max_cost } = query;
+    const filters: toolsWhereInput = {};
+
+    if (department) filters.owner_department = department;
+    if (status) filters.status = status;
+    if (min_cost || max_cost) {
+      filters.monthly_cost = {};
+      if (min_cost) filters.monthly_cost.gte = min_cost;
+      if (max_cost) filters.monthly_cost.lte = max_cost;
+    }
+    if (categoryId) filters.category_id = categoryId;
+
+    return filters;
   }
 
   async findOne(id: number): Promise<SuccessResponseInterface<ToolsFindOneByIdResponse>> {
