@@ -8,6 +8,7 @@ import {
   Delete,
   Query,
   ParseIntPipe,
+  HttpCode,
 } from "@nestjs/common";
 import { CreateToolDto } from "./dto/create-tool.dto.js";
 import { UpdateToolDto } from "./dto/update-tool.dto.js";
@@ -56,6 +57,7 @@ export class ToolsController {
     type: SuccessResponseFactory(Tool, ToolsFindAllMeta),
     example: TOOLS_FIND_ALL_EXAMPLE,
   })
+  @ApiResponse({ status: 404, description: "Tool not found" })
   findAll(@Query() query: ToolsQueryDto) {
     return this.toolsService.findAll(query);
   }
@@ -68,10 +70,12 @@ export class ToolsController {
     type: SuccessResponseFactory(ToolsFindOneByIdResponse),
     example: TOOLS_FIND_ALL_EXAMPLE,
   })
+  @ApiResponse({ status: 404, description: "Tool not found" })
   findOne(@Param("id", ParseIntPipe) id: number) {
     return this.toolsService.findOne(id);
   }
 
+  @Patch(":id")
   @ApiOperation({ summary: "Get all tools with optional filters" })
   @ApiBody({
     type: UpdateToolDto,
@@ -82,13 +86,17 @@ export class ToolsController {
     type: SuccessResponseFactory(ToolsCreateOrUpdateResponse),
     example: TOOLS_CREATE_OR_UPDATE_EXAMPLE,
   })
-  @Patch(":id")
+  @ApiResponse({ status: 404, description: "Tool not found" })
   update(@Param("id", ParseIntPipe) id: number, @Body() updateToolDto: UpdateToolDto) {
     return this.toolsService.update(id, updateToolDto);
   }
 
+  @ApiOperation({ summary: "Delete a tool by ID" })
+  @ApiResponse({ status: 204, description: "Tool successfully deleted" })
+  @ApiResponse({ status: 404, description: "Tool not found" })
+  @HttpCode(204)
   @Delete(":id")
-  remove(@Param("id") id: string) {
-    return this.toolsService.remove(+id);
+  remove(@Param("id", ParseIntPipe) id: number) {
+    return this.toolsService.remove(id);
   }
 }
