@@ -6,6 +6,19 @@ import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  app.setGlobalPrefix("api");
+
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true,
+      disableErrorMessages: process.env.NODE_ENV !== "development",
+      transform: true,
+      transformOptions: { enableImplicitConversion: true },
+    }),
+  );
+
+  app.useGlobalFilters(new PrismaExeptionFilter());
+
   const config = new DocumentBuilder()
     .setTitle("Tools Management API")
     .setDescription("API to manage tools, costs, and usage metrics")
@@ -13,14 +26,6 @@ async function bootstrap() {
     .build();
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup("api/docs", app, document);
-  app.useGlobalPipes(
-    new ValidationPipe({
-      whitelist: true,
-      disableErrorMessages: process.env.NODE_ENV !== "development",
-    }),
-  );
-  app.setGlobalPrefix("api");
-  app.useGlobalFilters(new PrismaExeptionFilter());
   await app.listen(process.env.PORT ?? 3000);
 }
 bootstrap();
