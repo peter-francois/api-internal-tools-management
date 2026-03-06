@@ -124,7 +124,7 @@ export class ToolsService {
     return { data: { ...tool, monthly_cost: tool.monthly_cost.toNumber() } };
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} tool`;
+  async remove(id: number): Promise<void> {
+    await this.prismaService.tools.delete({ where: { id } });
   }
 }
