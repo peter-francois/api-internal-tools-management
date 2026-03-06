@@ -11,7 +11,7 @@ import {
 } from "@nestjs/common";
 import { CreateToolDto } from "./dto/create-tool.dto.js";
 import { UpdateToolDto } from "./dto/update-tool.dto.js";
-import { ToolsFindAllMeta, ToolsService } from "./tools.service.js";
+import { ToolsFindAllMeta, ToolsFindOneByIdResponse, ToolsService } from "./tools.service.js";
 import { ToolsQueryDto } from "./dto/tools-query.dto.js";
 import { ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { SuccessResponseFactory } from "../utils/success-response.factory.js";
@@ -41,6 +41,13 @@ export class ToolsController {
   }
 
   @Get(":id")
+  @ApiOperation({ summary: "Get all tools with optional filters" })
+  @ApiResponse({
+    status: 200,
+    description: "The tool with usage metrics",
+    type: SuccessResponseFactory(ToolsFindOneByIdResponse),
+    example: TOOLS_FIND_ALL_EXAMPLE,
+  })
   findOne(@Param("id", ParseIntPipe) id: number) {
     return this.toolsService.findOne(id);
   }
