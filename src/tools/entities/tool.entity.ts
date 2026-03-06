@@ -3,25 +3,25 @@ import { tools_owner_department, tools_status } from "../../generated/prisma/enu
 import { type toolsWhereInput } from "src/generated/prisma/models.js";
 
 export class Tool {
-  @ApiProperty()
+  @ApiProperty({ example: 3 })
   id: number;
 
-  @ApiProperty()
+  @ApiProperty({ example: "GitHub" })
   name: string;
 
-  @ApiProperty()
+  @ApiProperty({ example: "Version control and collaboration", nullable: true })
   description: string | null;
 
-  @ApiProperty()
+  @ApiProperty({ example: "GitHub Inc.", nullable: true })
   vendor: string | null;
 
-  @ApiProperty()
+  @ApiProperty({ example: "https://github.com", nullable: true })
   website_url: string | null;
 
-  @ApiProperty()
+  @ApiProperty({ example: 2 })
   category_id: number;
 
-  @ApiProperty()
+  @ApiProperty({ example: 21.0 })
   monthly_cost: number;
 
   @ApiProperty()
@@ -33,33 +33,39 @@ export class Tool {
   @ApiProperty({ enum: tools_status })
   status: tools_status | null;
 
-  @ApiProperty()
+  @ApiProperty({ example: "2026-03-05T14:24:27.000Z", nullable: true })
   created_at: Date | null;
 
-  @ApiProperty()
+  @ApiProperty({ example: "2026-03-05T14:24:27.000Z", nullable: true })
   updated_at: Date | null;
 }
 
 export class ToolsFindAllMeta {
-  @ApiProperty()
+  @ApiProperty({ example: 24 })
   total: number;
-  @ApiProperty()
+
+  @ApiProperty({ example: 2 })
   filtered: number;
+
   @ApiProperty({
     example: { min_cost: 10, max_cost: 50, category: "Development" },
   })
   filters_applied: toolsWhereInput;
 }
+class Last30DaysMetrics {
+  @ApiProperty({ example: 127 })
+  total_sessions: number;
+
+  @ApiProperty({ example: 45 })
+  avg_session_minutes: number;
+}
+
 class UsageMetrics {
+  @ApiProperty({ type: () => Last30DaysMetrics })
   last_30_days: Last30DaysMetrics;
 }
 
 export class ToolsFindOneByIdResponse extends Tool {
   @ApiProperty({ type: () => UsageMetrics })
   usage_metrics: UsageMetrics;
-}
-
-class Last30DaysMetrics {
-  total_sessions: number;
-  avg_session_minutes: number;
 }
