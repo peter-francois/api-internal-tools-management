@@ -1,4 +1,4 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty } from "@nestjs/swagger";
 
 export function SuccessResponseFactory<T, M>(DataClass: new () => T, MetaClass: new () => M) {
   class SuccessResponseClass {
