@@ -1,5 +1,6 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { tools_owner_department, tools_status } from "../../generated/prisma/enums.js";
+import { type toolsWhereInput } from "src/generated/prisma/models.js";
 
 export class Tool {
   @ApiProperty()
@@ -37,4 +38,28 @@ export class Tool {
 
   @ApiProperty()
   updated_at: Date | null;
+}
+
+export class ToolsFindAllMeta {
+  @ApiProperty()
+  total: number;
+  @ApiProperty()
+  filtered: number;
+  @ApiProperty({
+    example: { min_cost: 10, max_cost: 50, category: "Development" },
+  })
+  filters_applied: toolsWhereInput;
+}
+class UsageMetrics {
+  last_30_days: Last30DaysMetrics;
+}
+
+export class ToolsFindOneByIdResponse extends Tool {
+  @ApiProperty({ type: () => UsageMetrics })
+  usage_metrics: UsageMetrics;
+}
+
+class Last30DaysMetrics {
+  total_sessions: number;
+  avg_session_minutes: number;
 }

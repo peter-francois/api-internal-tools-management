@@ -11,11 +11,11 @@ import {
 } from "@nestjs/common";
 import { CreateToolDto } from "./dto/create-tool.dto.js";
 import { UpdateToolDto } from "./dto/update-tool.dto.js";
-import { ToolsFindAllMeta, ToolsFindOneByIdResponse, ToolsService } from "./tools.service.js";
+import { ToolsService } from "./tools.service.js";
 import { ToolsQueryDto } from "./dto/tools-query.dto.js";
 import { ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { SuccessResponseFactory } from "../utils/success-response.factory.js";
-import { Tool } from "./entities/tool.entity.js";
+import { Tool, ToolsFindAllMeta, ToolsFindOneByIdResponse } from "./entities/tool.entity.js";
 import { TOOLS_FIND_ALL_EXAMPLE } from "../utils/tools.example.js";
 
 @ApiTags("tools")
