@@ -17,7 +17,7 @@ import { ApiBody, ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { SuccessResponseFactory } from "../utils/success-response.factory.js";
 import {
   Tool,
-  ToolsCreateResponse,
+  ToolsCreateOrUpdateResponse,
   ToolsFindAllMeta,
   ToolsFindOneByIdResponse,
 } from "./entities/tool.entity.js";
@@ -39,7 +39,7 @@ export class ToolsController {
   })
   @ApiResponse({
     status: 201,
-    type: SuccessResponseFactory(ToolsCreateResponse),
+    type: SuccessResponseFactory(ToolsCreateOrUpdateResponse),
     example: TOOLS_CREATE_EXAMPLE,
   })
   @Post()
@@ -72,8 +72,8 @@ export class ToolsController {
   }
 
   @Patch(":id")
-  update(@Param("id") id: string, @Body() updateToolDto: UpdateToolDto) {
-    return this.toolsService.update(+id, updateToolDto);
+  update(@Param("id", ParseIntPipe) id: number, @Body() updateToolDto: UpdateToolDto) {
+    return this.toolsService.update(id, updateToolDto);
   }
 
   @Delete(":id")

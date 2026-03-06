@@ -69,8 +69,7 @@ export class ToolsFindOneByIdResponse extends Tool {
   @ApiProperty({ type: () => UsageMetrics })
   usage_metrics: UsageMetrics;
 }
-export class ToolsCreateResponse extends Tool {
-
+export class ToolsCreateOrUpdateResponse extends Tool {
   @ApiHideProperty()
   declare category_id: number;
 }
