@@ -6,9 +6,9 @@ import { ToolsQueryDto, ToolsSortBy } from "./dto/tools-query.dto.js";
 import { toolsWhereInput } from "../generated/prisma/models.js";
 import { Prisma, tools } from "../generated/prisma/client.js";
 import { THIRTY_DAYS_IN_MS } from "../utils/variables.js";
+import { SuccessResponseInterface } from "src/utils/response.interface.js";
 
-class ToolsFindAllResponse {
-  data: tools[];
+class ToolsFindAllMeta {
   total: number;
   filtered: number;
   filters_applied: toolsWhereInput;
@@ -35,7 +35,9 @@ export class ToolsService {
     return "This action adds a new tool";
   }
 
-  async findAll(query: ToolsQueryDto): Promise<ToolsFindAllResponse> {
+  async findAll(
+    query: ToolsQueryDto,
+  ): Promise<SuccessResponseInterface<tools[], ToolsFindAllMeta>> {
     const {
       department,
       status,
@@ -63,7 +65,7 @@ export class ToolsService {
       if (categoryRecord) {
         filters.category_id = categoryRecord.id;
       } else {
-        return { data: [], total: 0, filtered: 0, filters_applied: query };
+        return { data: [], meta: {total: 0, filtered: 0, filters_applied: query} };
       }
     }
     const skip = (page - 1) * limit;
@@ -78,11 +80,12 @@ export class ToolsService {
         orderBy: { [sortBy]: sortOrder },
       }),
     ]);
+    const meta = { total, filtered, filters_applied: query };
 
-    return { data, total, filtered, filters_applied: query };
+    return { data, meta };
   }
 
-  async findOne(id: number): Promise<ToolsFindOneByIdResponse> {
+  async findOne(id: number): Promise<SuccessResponseInterface<ToolsFindOneByIdResponse>> {
     const [tool, usageMetrics] = await this.prismaService.$transaction([
       this.prismaService.tools.findUniqueOrThrow({ where: { id } }),
       this.prismaService.usage_logs.aggregate({
@@ -94,8 +97,7 @@ export class ToolsService {
         _avg: { usage_minutes: true },
       }),
     ]);
-
-    return {
+    const data: ToolsFindOneByIdResponse = {
       ...tool,
       usage_metrics: {
         last_30_days: {
@@ -104,6 +106,8 @@ export class ToolsService {
         },
       },
     };
+
+    return { data };
   }
 
   update(id: number, updateToolDto: UpdateToolDto) {
