@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, NotFoundException } from "@nestjs/common";
 import { PrismaService } from "../prisma/prisma.service.js";
 import { CreateToolDto } from "./dto/create-tool.dto.js";
 import { UpdateToolDto } from "./dto/update-tool.dto.js";
@@ -7,16 +7,30 @@ import { type toolsWhereInput } from "../generated/prisma/models.js";
 import { Prisma, tools } from "../generated/prisma/client.js";
 import { THIRTY_DAYS_IN_MS } from "../utils/variables.js";
 import { SuccessResponseInterface } from "../utils/response.interface.js";
-import { ToolsFindAllMeta, ToolsFindOneByIdResponse } from "./entities/tool.entity.js";
-
-
+import {
+  ToolsCreateResponse,
+  ToolsFindAllMeta,
+  ToolsFindOneByIdResponse,
+} from "./entities/tool.entity.js";
 
 @Injectable()
 export class ToolsService {
   constructor(private readonly prismaService: PrismaService) {}
 
-  create(createToolDto: CreateToolDto) {
-    return "This action adds a new tool";
+  async create(
+    createToolDto: CreateToolDto,
+  ): Promise<SuccessResponseInterface<ToolsCreateResponse>> {
+    const category = await this.prismaService.categories.findUnique({
+      where: { id: createToolDto.category_id },
+    });
+    if (!category) throw new NotFoundException(`Category ${createToolDto.category_id} not found`);
+
+    const tool: tools = await this.prismaService.tools.create({
+      data: createToolDto,
+    });
+    return {
+      data: { ...tool, monthly_cost: tool.monthly_cost.toNumber() },
+    };
   }
 
   async findAll(

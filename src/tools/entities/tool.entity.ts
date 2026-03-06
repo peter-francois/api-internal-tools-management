@@ -1,4 +1,4 @@
-import { ApiProperty } from "@nestjs/swagger";
+import { ApiHideProperty, ApiProperty } from "@nestjs/swagger";
 import { tools_owner_department, tools_status } from "../../generated/prisma/enums.js";
 import { type toolsWhereInput } from "src/generated/prisma/models.js";
 
@@ -68,4 +68,9 @@ class UsageMetrics {
 export class ToolsFindOneByIdResponse extends Tool {
   @ApiProperty({ type: () => UsageMetrics })
   usage_metrics: UsageMetrics;
+}
+export class ToolsCreateResponse extends Tool {
+
+  @ApiHideProperty()
+  declare category_id: number;
 }
