@@ -1,15 +1,18 @@
+
 export enum ToolsOwnerDepartment {
-  IT = "IT",
-  HR = "HR",
-  FINANCE = "FINANCE",
-  MARKETING = "MARKETING",
-  SALES = "SALES",
+  Engineering= 'Engineering',
+  Sales= 'Sales',
+  Marketing= 'Marketing',
+  HR= 'HR',
+  Finance= 'Finance',
+  Operations= 'Operations',
+  Design= 'Design'
 }
 
 export enum ToolsStatus {
   ACTIVE = "active",
-  INACTIVE = "inactive",
-  DEPRECATED = "deprecated",
+  DEPRECATED  = "deprecated",
+  TRIAL = "trial",
 }
 
 export class Tool {
@@ -26,3 +29,4 @@ export class Tool {
   createdAt?: Date;
   updatedAt?: Date;
 }
+
