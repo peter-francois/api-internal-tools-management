@@ -5,29 +5,25 @@ import { UpdateToolDto } from "./dto/update-tool.dto.js";
 import { ToolsQueryDto, ToolsSortBy } from "./dto/tools-query.dto.js";
 import { type toolsWhereInput } from "../generated/prisma/models.js";
 import { Prisma, tools } from "../generated/prisma/client.js";
-import { THIRTY_DAYS_IN_MS } from "../utils/variables.js";
 import { SuccessResponseInterface } from "../utils/response.interface.js";
 import {
   ToolsCreateOrUpdateResponse,
   ToolsFindAllMeta,
   ToolsFindOneByIdResponse,
 } from "./entities/tool.entity.js";
+import { ToolsRepository } from "./tools.repository.js";
 
 @Injectable()
 export class ToolsService {
-  constructor(private readonly prismaService: PrismaService) {}
+  constructor(private readonly prismaService: PrismaService, private readonly toolsRepository: ToolsRepository) {}
 
   async create(
     createToolDto: CreateToolDto,
   ): Promise<SuccessResponseInterface<ToolsCreateOrUpdateResponse>> {
-    const category = await this.prismaService.categories.findUnique({
-      where: { id: createToolDto.category_id },
-    });
+    const category = this.toolsRepository.findCategory(createToolDto.category_id);
     if (!category) throw new NotFoundException(`Category ${createToolDto.category_id} not found`);
 
-    const tool: tools = await this.prismaService.tools.create({
-      data: createToolDto,
-    });
+    const tool = await await this.toolsRepository.createTool(createToolDto);
     return {
       data: { ...tool, monthly_cost: tool.monthly_cost.toNumber() },
     };
@@ -45,9 +41,7 @@ export class ToolsService {
     } = query;
     let categoryId: number | undefined;
     if (category) {
-      const categoryRecord = await this.prismaService.categories.findUnique({
-        where: { name: category },
-      });
+      const categoryRecord = await this.toolsRepository.findCategoryByName(category);
       if (!categoryRecord) {
         return { data: [], meta: { total: 0, filtered: 0, filters_applied: query } };
       }
@@ -57,19 +51,15 @@ export class ToolsService {
     const filters = this.buildFilters(query, categoryId);
     const skip = (page - 1) * limit;
 
-    const [total, filtered, data] = await this.prismaService.$transaction([
-      this.prismaService.tools.count(),
-      this.prismaService.tools.count({ where: filters }),
-      this.prismaService.tools.findMany({
-        where: filters,
-        skip,
-        take: limit,
-        orderBy: { [sortBy]: sortOrder },
-      }),
-    ]);
-    const meta = { total, filtered, filters_applied: query };
+    const [total, filtered, data] = await this.toolsRepository.findAllTools(
+      filters,
+      skip,
+      limit,
+      sortBy,
+      sortOrder,
+    );
 
-    return { data, meta };
+    return { data, meta: { total, filtered, filters_applied: query } };
   }
 
   private buildFilters(query: ToolsQueryDto, categoryId?: number): toolsWhereInput {
@@ -89,17 +79,8 @@ export class ToolsService {
   }
 
   async findOne(id: number): Promise<SuccessResponseInterface<ToolsFindOneByIdResponse>> {
-    const [tool, usageMetrics] = await this.prismaService.$transaction([
-      this.prismaService.tools.findUniqueOrThrow({ where: { id } }),
-      this.prismaService.usage_logs.aggregate({
-        where: {
-          tool_id: id,
-          session_date: { gte: new Date(Date.now() - THIRTY_DAYS_IN_MS) },
-        },
-        _count: { id: true },
-        _avg: { usage_minutes: true },
-      }),
-    ]);
+    const tool = await this.toolsRepository.findToolById(id);
+    const usageMetrics = await this.toolsRepository.findToolUsageMetrics(id);
     const data: ToolsFindOneByIdResponse = {
       ...tool,
       monthly_cost: tool.monthly_cost.toNumber(),
@@ -118,13 +99,14 @@ export class ToolsService {
     id: number,
     updateToolDto: UpdateToolDto,
   ): Promise<SuccessResponseInterface<ToolsCreateOrUpdateResponse>> {
-    await this.prismaService.tools.findUniqueOrThrow({ where: { id } });
+    await this.toolsRepository.findToolById(id);
 
-    const tool = await this.prismaService.tools.update({ where: { id }, data: updateToolDto });
+    const tool = await this.toolsRepository.updateTool(id, updateToolDto);
     return { data: { ...tool, monthly_cost: tool.monthly_cost.toNumber() } };
   }
 
   async remove(id: number): Promise<void> {
-    await this.prismaService.tools.delete({ where: { id } });
+    await this.toolsRepository.findToolById(id);
+    await this.toolsRepository.deleteTool(id);
   }
 }
