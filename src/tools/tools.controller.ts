@@ -11,9 +11,14 @@ import {
 } from "@nestjs/common";
 import { CreateToolDto } from "./dto/create-tool.dto.js";
 import { UpdateToolDto } from "./dto/update-tool.dto.js";
-import { ToolsService } from "./tools.service.js";
+import { ToolsFindAllMeta, ToolsService } from "./tools.service.js";
 import { ToolsQueryDto } from "./dto/tools-query.dto.js";
+import { ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
+import { SuccessResponseFactory } from "../utils/success-response.factory.js";
+import { Tool } from "./entities/tool.entity.js";
+import { TOOLS_FIND_ALL_EXAMPLE } from "../utils/tools.example.js";
 
+@ApiTags("tools")
 @Controller("tools")
 export class ToolsController {
   constructor(private readonly toolsService: ToolsService) {}
@@ -24,6 +29,13 @@ export class ToolsController {
   }
 
   @Get()
+  @ApiOperation({ summary: "Get all tools with optional filters" })
+  @ApiResponse({
+    status: 200,
+    description: "List of tools with meta",
+    type: SuccessResponseFactory(Tool, ToolsFindAllMeta),
+    example: TOOLS_FIND_ALL_EXAMPLE,
+  })
   findAll(@Query() query: ToolsQueryDto) {
     return this.toolsService.findAll(query);
   }
