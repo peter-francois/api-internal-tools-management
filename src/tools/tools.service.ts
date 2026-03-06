@@ -8,7 +8,7 @@ import { Prisma, tools } from "../generated/prisma/client.js";
 import { THIRTY_DAYS_IN_MS } from "../utils/variables.js";
 import { SuccessResponseInterface } from "../utils/response.interface.js";
 import {
-  ToolsCreateResponse,
+  ToolsCreateOrUpdateResponse,
   ToolsFindAllMeta,
   ToolsFindOneByIdResponse,
 } from "./entities/tool.entity.js";
@@ -19,7 +19,7 @@ export class ToolsService {
 
   async create(
     createToolDto: CreateToolDto,
-  ): Promise<SuccessResponseInterface<ToolsCreateResponse>> {
+  ): Promise<SuccessResponseInterface<ToolsCreateOrUpdateResponse>> {
     const category = await this.prismaService.categories.findUnique({
       where: { id: createToolDto.category_id },
     });
@@ -114,8 +114,14 @@ export class ToolsService {
     return { data };
   }
 
-  update(id: number, updateToolDto: UpdateToolDto) {
-    return `This action updates a #${id} tool`;
+  async update(
+    id: number,
+    updateToolDto: UpdateToolDto,
+  ): Promise<SuccessResponseInterface<ToolsCreateOrUpdateResponse>> {
+    await this.prismaService.tools.findUniqueOrThrow({ where: { id } });
+
+    const tool = await this.prismaService.tools.update({ where: { id }, data: updateToolDto });
+    return { data: { ...tool, monthly_cost: tool.monthly_cost.toNumber() } };
   }
 
   remove(id: number) {
