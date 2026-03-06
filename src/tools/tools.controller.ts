@@ -1,4 +1,14 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from "@nestjs/common";
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  Query,
+  ParseIntPipe,
+} from "@nestjs/common";
 import { CreateToolDto } from "./dto/create-tool.dto.js";
 import { UpdateToolDto } from "./dto/update-tool.dto.js";
 import { ToolsService } from "./tools.service.js";
@@ -19,8 +29,8 @@ export class ToolsController {
   }
 
   @Get(":id")
-  findOne(@Param("id") id: string) {
-    return this.toolsService.findOne(+id);
+  findOne(@Param("id", ParseIntPipe) id: number) {
+    return this.toolsService.findOne(id);
   }
 
   @Patch(":id")
